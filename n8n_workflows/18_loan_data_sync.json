@@ -1,0 +1,53 @@
+{
+  "name": "18_PropZen_Loan_Data_Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 7
+            }
+          ]
+        }
+      },
+      "name": "Schedule: Weekly Lending Rate Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/loans/sync-rates",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "name": "Call: Authorized Loan Partner Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Schedule: Weekly Lending Rate Check": {
+      "main": [
+        [
+          {
+            "node": "Call: Authorized Loan Partner Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

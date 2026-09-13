@@ -1,0 +1,65 @@
+{
+  "name": "14_PropZen_ElevenLabs_Voiceover",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/elevenlabs-voiceover",
+        "options": {}
+      },
+      "name": "Webhook: Voice Narration Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/elevenlabs/synthesize",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "property_id",
+              "value": "={{$json.body.property_id}}"
+            },
+            {
+              "name": "script_text",
+              "value": "={{$json.body.script_text || ('Verified residential opportunity in ' + $json.body.location)}}"
+            },
+            {
+              "name": "language",
+              "value": "={{$json.body.language || 'en'}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: ElevenLabs Synthesis Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Voice Narration Request": {
+      "main": [
+        [
+          {
+            "node": "Call: ElevenLabs Synthesis Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

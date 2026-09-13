@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  propzen-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: propzen-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/propzen_dev
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - PROPZEN_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080,http://localhost:5000
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: propzen-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=propzen_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - propzen-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  propzen-postgres-data:

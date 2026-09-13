@@ -1,0 +1,65 @@
+{
+  "name": "09_PropZen_Wati_Site_Visit_Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/wati-site-visit",
+        "options": {}
+      },
+      "name": "Webhook: Site Visit Booked",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/wati/send-template",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "whatsapp_number",
+              "value": "={{$json.body.user_phone}}"
+            },
+            {
+              "name": "template_name",
+              "value": "propzen_site_visit_confirmed"
+            },
+            {
+              "name": "parameters",
+              "value": "={{[{\"name\": \"property_title\", \"value\": $json.body.property_title}, {\"name\": \"visit_date\", \"value\": $json.body.visit_date}, {\"name\": \"time_slot\", \"value\": $json.body.time_slot}]}}"
+            }
+          ]
+        }
+      },
+      "name": "Wati: Send Confirmation Notice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Site Visit Booked": {
+      "main": [
+        [
+          {
+            "node": "Wati: Send Confirmation Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

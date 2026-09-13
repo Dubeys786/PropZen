@@ -1,0 +1,48 @@
+{
+  "name": "20_PropZen_NRI_Meeting_Cal_Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/nri-meeting-schedule",
+        "options": {}
+      },
+      "name": "Webhook: NRI Meeting Scheduled",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cal.com/v1/bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.CAL_COM_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "name": "Cal.com: Sync Timezone Booking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: NRI Meeting Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Cal.com: Sync Timezone Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,85 @@
+# PropZen Production .gitignore
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+key.properties
+local.properties
+**/local.properties
+*.pem
+*.pfx
+*.p12
+
+# Cleanup Quarantine & External Binaries
+/_propzen_cleanup_review/
+/tools/
+
+# Python & Microservices
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+backend/**/.venv/
+backend/**/__pycache__/
+backend/**/.pytest_cache/
+
+# Flutter & Dart
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+/build/
+
+# Obfuscation & Symbolication
+app.*.symbols
+app.*.map.json
+
+# Android Studio & Gradle
+/android/app/debug
+/android/app/profile
+/android/app/release
+.gradle/
+**/android/.gradle/
+**/android/captures/
+**/android/gradleBuild/
+
+# iOS & Xcode
+**/ios/.generated/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods/
+**/ios/.symlinks/
+
+# Java Spring Boot & Maven
+**/target/
+*.class
+**/.mvn/wrapper/maven-wrapper.jar
+
+# IDE & Editors
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# OS & Temporary
+*.log
+*.swp
+.DS_Store
+Thumbs.db
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/

@@ -1,0 +1,57 @@
+{
+  "name": "21_PropZen_Construction_Update_Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/construction-update-approved",
+        "options": {}
+      },
+      "name": "Webhook: Milestone Update Approved",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/wati/send-template",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "template_name",
+              "value": "propzen_construction_milestone_alert"
+            }
+          ]
+        }
+      },
+      "name": "Wati: Broadcast Milestone to Buyers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Milestone Update Approved": {
+      "main": [
+        [
+          {
+            "node": "Wati: Broadcast Milestone to Buyers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

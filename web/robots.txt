@@ -1,0 +1,23 @@
+# PropZen Robots.txt
+# Controls search engine indexing and references dynamic XML sitemap
+
+User-agent: *
+Allow: /
+Allow: /search
+Allow: /property/
+Allow: /property-rates/
+Allow: /insights/
+Allow: /buy/
+Allow: /rent/
+Allow: /market-hub
+Allow: /reporter-feed
+
+Disallow: /admin
+Disallow: /api/
+Disallow: /dealer/settings
+Disallow: /dealer/leads
+Disallow: /profile
+Disallow: /settings
+Disallow: /deal-room/
+
+Sitemap: https://propzen.ai/sitemap.xml

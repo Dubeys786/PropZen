@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropZen - AI Property Verification Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090D16;
+            --card-bg: rgba(18, 26, 43, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover: rgba(255, 255, 255, 0.12);
+            --primary: #6366F1;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --cyan: #06B6D4;
+            --emerald: #10B981;
+            --amber: #F59E0B;
+            --rose: #F43F5E;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dim: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 32px 20px;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #A5B4FC;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 620px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Upload Area */
+        .upload-zone {
+            border: 2px dashed rgba(99, 102, 241, 0.35);
+            border-radius: 12px;
+            padding: 32px 20px;
+            text-align: center;
+            background: rgba(99, 102, 241, 0.03);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.06);
+        }
+
+        .upload-zone svg {
+            width: 48px;
+            height: 48px;
+            stroke: #818CF8;
+            margin-bottom: 12px;
+        }
+
+        .upload-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            font-family: inherit;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        select:focus, button:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            border: none;
+            color: #FFF;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Result Section */
+        .verification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .status-PASS { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-REVIEW_REQUIRED { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-HIGH_RISK { background: rgba(244, 63, 94, 0.15); color: #FB7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .status-INSUFFICIENT_DATA { background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        /* Metrics Row */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        /* Gauge progress bar */
+        .gauge-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Data Tables */
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            padding: 12px 14px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-key {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .info-val {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        /* Findings & Issues */
+        .finding-card {
+            background: rgba(244, 63, 94, 0.05);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .finding-card.severity-MEDIUM {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .finding-type {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #FDA4AF;
+        }
+
+        .finding-desc {
+            font-size: 0.85rem;
+            color: #E2E8F0;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .finding-evidence {
+            font-family: monospace;
+            font-size: 0.78rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: #CBD5E1;
+            margin-bottom: 6px;
+        }
+
+        .finding-action {
+            font-size: 0.8rem;
+            color: var(--cyan);
+            font-weight: 500;
+        }
+
+        /* Disclaimer */
+        .disclaimer-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            line-height: 1.4;
+            margin-top: 24px;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge-tag">PropZen AI Security Suite</div>
+            <h1>AI Property Verification</h1>
+            <p class="subtitle">Autonomous verification engine for real estate titles, registry deeds, and land revenue records with transparent risk scoring.</p>
+        </header>
+
+        <!-- Document Upload Panel -->
+        <div class="panel">
+            <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <div class="upload-title" id="uploadStatusText">Upload Property Document</div>
+                <div class="upload-hint">Supported formats: PDF, PNG, JPG, TIFF, TXT (Max 10MB)</div>
+                <input type="file" id="fileInput" class="hidden" accept=".pdf,.png,.jpg,.jpeg,.tiff,.txt">
+            </div>
+
+            <div class="controls-row">
+                <select id="docTypeSelect">
+                    <option value="SALE_DEED">Sale Deed (विक्रय पत्र)</option>
+                    <option value="REGISTRY_DOCUMENT">Registry Document</option>
+                    <option value="KHATAUNI_LAND_RECORD">Khatauni / Land Record</option>
+                    <option value="PROPERTY_TAX_DOCUMENT">Property Tax Document</option>
+                    <option value="ENCUMBRANCE_CERTIFICATE">Encumbrance Certificate</option>
+                    <option value="ALLOTMENT_LETTER">Allotment Letter</option>
+                    <option value="POSSESSION_LETTER">Possession Letter</option>
+                    <option value="GENERIC_PROPERTY_DOCUMENT">Generic Property Document</option>
+                </select>
+
+                <button class="btn-primary" id="btnVerify" onclick="executeVerification()">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                    </svg>
+                    Run AI Verification
+                </button>
+
+                <button class="btn-secondary" onclick="loadSampleSaleDeed()">Load Sample Sale Deed</button>
+            </div>
+        </div>
+
+        <!-- Verification Results View -->
+        <div class="panel" id="resultPanel">
+            <div class="verification-header">
+                <div>
+                    <h2 class="section-title" id="docTitle">Lotus Boulevard Flat 402 - Sale Deed</h2>
+                    <span id="docTypeBadge" style="color: var(--cyan); font-size: 0.85rem; font-weight: 600;">SALE DEED</span>
+                </div>
+                <div class="status-badge status-PASS" id="statusBadge">PASS</div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Risk Score (0–100)</div>
+                    <div class="metric-value" id="riskScore">12</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="riskGauge" style="width: 12%; background: #10B981;"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Risk Level</div>
+                    <div class="metric-value" id="riskLevel" style="color: #34D399;">LOW</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Extraction Confidence</div>
+                    <div class="metric-value" id="confidenceVal">98%</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Recommended Action</div>
+                    <div style="font-size: 0.85rem; color: #E2E8F0; font-weight: 500;" id="actionText">
+                        Document meets standard consistency criteria.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detected Information -->
+            <div class="section-title">Detected Information</div>
+            <div class="info-grid" id="detectedInfoGrid">
+                <div class="info-item"><span class="info-key">Owner Name:</span><span class="info-val" id="infoOwner">Rajesh Kumar Sharma</span></div>
+                <div class="info-item"><span class="info-key">Property Area:</span><span class="info-val" id="infoArea">1250 sq ft</span></div>
+                <div class="info-item"><span class="info-key">Plot / Unit:</span><span class="info-val" id="infoPlot">B-402</span></div>
+                <div class="info-item"><span class="info-key">Khasra Number:</span><span class="info-val" id="infoKhasra">142/2</span></div>
+                <div class="info-item"><span class="info-key">Registration Number:</span><span class="info-val" id="infoRegNo">REG-UP-9941</span></div>
+                <div class="info-item"><span class="info-key">Registration Date:</span><span class="info-val" id="infoRegDate">2023-05-15</span></div>
+                <div class="info-item"><span class="info-key">Execution Date:</span><span class="info-val" id="infoExecDate">2023-05-10</span></div>
+                <div class="info-item"><span class="info-key">Village / Tehsil:</span><span class="info-val" id="infoLocality">Gejha, Dadri</span></div>
+            </div>
+
+            <!-- Potential Issues & Findings -->
+            <div class="section-title">Potential Issues & Findings (<span id="findingsCount">0</span>)</div>
+            <div id="findingsList">
+                <div style="color: var(--text-dim); font-size: 0.85rem; padding: 8px 0;">No discrepancies detected in preliminary verification checks.</div>
+            </div>
+
+            <!-- Legal Disclaimer -->
+            <div class="disclaimer-banner">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                </svg>
+                <span><strong>AI-Assisted Verification Notice:</strong> This analysis is generated by automated algorithms and does not constitute a formal legal title certification or government registry guarantee. Certified manual title search by a qualified property attorney is recommended for complete legal conveyance.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PropZen Client Script -->
+    <script src="./propzen_verification_client.js"></script>
+    <script>
+        const client = new PropZenVerificationClient({ baseUrl: 'http://localhost:8000' });
+        let selectedFile = null;
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                document.getElementById('uploadStatusText').innerText = `Selected: ${selectedFile.name} (${Math.round(selectedFile.size / 1024)} KB)`;
+            }
+        });
+
+        async function loadSampleSaleDeed() {
+            const sampleText = `DEED OF SALE
+Execution Date: 2023-05-10
+Registration Date: 2023-05-15
+Document Number: DOC-2023-8821
+Registration Number: REG-UP-9941
+Sub-Registrar Office: SRO Noida Sector 33
+Seller Name: Amit Verma
+Buyer Name: Rajesh Kumar Sharma
+Owner Name: Rajesh Kumar Sharma
+Property Type: Residential Apartment
+Property Address: Flat 402, Tower B, Lotus Boulevard, Sector 100, Noida, Gautam Buddha Nagar, Uttar Pradesh
+Village: Gejha
+Tehsil: Dadri
+District: Gautam Buddha Nagar
+Plot Number: B-402
+Khasra Number: 142/2
+Property Area: 1250 sq ft
+Consideration Amount: Rs. 85,00,000
+Stamp Duty: Rs. 5,95,000`;
+
+            const blob = new Blob([sampleText], { type: 'text/plain' });
+            selectedFile = new File([blob], 'Lotus_Boulevard_SaleDeed.txt', { type: 'text/plain' });
+            document.getElementById('uploadStatusText').innerText = `Selected: ${selectedFile.name}`;
+            document.getElementById('docTypeSelect').value = 'SALE_DEED';
+            alert('Sample Sale Deed loaded! Click "Run AI Verification" to analyze.');
+        }
+
+        async function executeVerification() {
+            if (!selectedFile) {
+                await loadSampleSaleDeed();
+            }
+
+            const btn = document.getElementById('btnVerify');
+            btn.innerText = 'Analyzing...';
+            btn.disabled = true;
+
+            try {
+                // Step 1: Create Case
+                const caseData = await client.createCase({
+                    documentType: document.getElementById('docTypeSelect').value,
+                });
+
+                // Step 2: Upload Document
+                await client.uploadDocument(caseData.case_id, selectedFile, document.getElementById('docTypeSelect').value);
+
+                // Step 3: Analyze
+                const result = await client.analyzeCase(caseData.case_id);
+                renderResults(result);
+            } catch (err) {
+                console.error(err);
+                alert(`Verification Error: ${err.message}. Make sure FastAPI is running on port 8000.`);
+            } finally {
+                btn.innerText = 'Run AI Verification';
+                btn.disabled = false;
+            }
+        }
+
+        function renderResults(result) {
+            document.getElementById('docTitle').innerText = selectedFile ? selectedFile.name : 'Analyzed Document';
+            document.getElementById('docTypeBadge').innerText = result.document_type;
+
+            // Status Badge
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.className = `status-badge status-${result.status}`;
+            statusBadge.innerText = result.status.replace('_', ' ');
+
+            // Metrics
+            document.getElementById('riskScore').innerText = result.risk_score;
+            document.getElementById('riskLevel').innerText = result.risk_level;
+            
+            const gaugeFill = document.getElementById('riskGauge');
+            gaugeFill.style.width = `${result.risk_score}%`;
+            if (result.risk_score >= 60) {
+                gaugeFill.style.background = '#F43F5E';
+                document.getElementById('riskLevel').style.color = '#FB7185';
+            } else if (result.risk_score >= 30) {
+                gaugeFill.style.background = '#F59E0B';
+                document.getElementById('riskLevel').style.color = '#FBBF24';
+            } else {
+                gaugeFill.style.background = '#10B981';
+                document.getElementById('riskLevel').style.color = '#34D399';
+            }
+
+            document.getElementById('actionText').innerText = result.recommended_action;
+
+            // Info grid
+            const data = result.extracted_data || {};
+            document.getElementById('infoOwner').innerText = data.owner_name || 'Not detected';
+            document.getElementById('infoArea').innerText = data.property_area ? `${data.property_area} ${data.area_unit || 'sq ft'}` : 'Not detected';
+            document.getElementById('infoPlot').innerText = data.plot_number || 'Not detected';
+            document.getElementById('infoKhasra').innerText = data.khasra_number || 'Not detected';
+            document.getElementById('infoRegNo').innerText = data.registration_number || 'Not detected';
+            document.getElementById('infoRegDate').innerText = data.registration_date || 'Not detected';
+            document.getElementById('infoExecDate').innerText = data.execution_date || 'Not detected';
+            document.getElementById('infoLocality').innerText = [data.village, data.tehsil, data.district].filter(Boolean).join(', ') || 'Not detected';
+
+            // Findings list
+            const findingsContainer = document.getElementById('findingsList');
+            findingsContainer.innerHTML = '';
+            const findings = result.findings || [];
+            document.getElementById('findingsCount').innerText = findings.length;
+
+            if (findings.length === 0) {
+                findingsContainer.innerHTML = '<div style="color: var(--text-dim); font-size: 0.85rem; padding: 8px 0;">No discrepancies detected in preliminary verification checks.</div>';
+            } else {
+                findings.forEach(f => {
+                    const card = document.createElement('div');
+                    card.className = `finding-card severity-${f.severity}`;
+                    card.innerHTML = `
+                        <div class="finding-header">
+                            <span class="finding-type">${f.type.replace('_', ' ')} (${f.severity})</span>
+                        </div>
+                        <div class="finding-desc">${f.description}</div>
+                        ${f.evidence ? `<div class="finding-evidence">Evidence: ${JSON.stringify(f.evidence)}</div>` : ''}
+                        <div class="finding-action">Recommended: ${f.recommended_action}</div>
+                    `;
+                    findingsContainer.appendChild(card);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

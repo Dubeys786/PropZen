@@ -1,0 +1,67 @@
+hhzz{
+  "name": "10_PropZen_Signzy_KYC_Verification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/signzy-kyc-verify",
+        "options": {}
+      },
+      "name": "Webhook: Dealer KYC Document Submitted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/signzy/verify-pan",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pan_number",
+              "value": "={{$json.body.pan_number}}"
+            },
+            {
+              "name": "full_name",
+              "value": "={{$json.body.dealer_name}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: Signzy Identity Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        480,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: Dealer KYC Document Submitted": {
+      "main": [
+        [
+          {
+            "node": "Call: Signzy Identity Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

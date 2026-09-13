@@ -1,0 +1,55 @@
+{
+  "name": "17_PropZen_Admin_Unified_Alert_Router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/admin-unified-alert",
+        "options": {}
+      },
+      "name": "Webhook: Platform Anomaly / Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "notifications",
+        "fields": {
+          "fields": [
+            {
+              "name": "title",
+              "value": "=🔔 Platform Event: {{$json.body.service_name || 'System Alert'}}"
+            },
+            {
+              "name": "message",
+              "value": "={{$json.body.message || 'Automated integration event logged.'}}"
+            },
+            {
+              "name": "type",
+              "value": "system_alert"
+            }
+          ]
+        }
+      },
+      "name": "Supabase / Firebase: Record Admin Alert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Platform Anomaly / Event": {
+      "main": [
+        [
+          {
+            "node": "Supabase / Firebase: Record Admin Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

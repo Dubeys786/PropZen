@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="description" content="PropZen - Intelligence-First Real Estate Platform">
+  <meta name="theme-color" content="#0B0F19">
+
+  <title>PropZen - Real Estate Platform</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #0b0f19;
+      color: #f9fafb;
+      font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+    }
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 40%, #151b2e 0%, #0b0f19 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+      user-select: none;
+    }
+    #loading.loaded {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .brand-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .brand-title {
+      font-weight: 800;
+      font-size: 34px;
+      color: #8b5cf6;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(139, 92, 246, 0.15);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      margin-bottom: 14px;
+    }
+    .loading-text {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .error-card {
+      text-align: center;
+      max-width: 320px;
+      padding: 24px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+    .error-card h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f87171;
+      margin-bottom: 6px;
+    }
+    .error-card p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .retry-btn {
+      background: linear-gradient(135deg, #7c3aed, #6366f1);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+      transition: all 0.2s ease;
+    }
+    .retry-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(124, 58, 237, 0.5);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="brand-container" id="loading-content">
+      <div class="brand-title">PropZen</div>
+      <div class="spinner"></div>
+      <div class="loading-text">Loading PropZen...</div>
+    </div>
+  </div>
+
+  <script>
+    let isAppLoaded = false;
+
+    function removeLoadingScreen() {
+      if (isAppLoaded) return;
+      isAppLoaded = true;
+      const loadingEl = document.getElementById('loading');
+      if (loadingEl) {
+        loadingEl.classList.add('loaded');
+        setTimeout(function() {
+          if (loadingEl && loadingEl.parentNode) {
+            loadingEl.parentNode.removeChild(loadingEl);
+          }
+        }, 300);
+      }
+    }
+
+    function checkFlutterAttached() {
+      if (isAppLoaded) return true;
+      if (document.querySelector('flutter-view, flt-glass-pane, flt-scene-host, flt-renderer, canvas, [flt-renderer]')) {
+        removeLoadingScreen();
+        return true;
+      }
+      return false;
+    }
+
+    // Safety timeout: ensure loading screen is never stuck forever
+    const appLoadTimeout = setTimeout(function() {
+      removeLoadingScreen();
+    }, 4000);
+
+    // Multi-layer detection to immediately hide splash when Flutter renders:
+    // 1. Listen for custom window events
+    window.addEventListener('flutter-first-frame', function() {
+      clearTimeout(appLoadTimeout);
+      removeLoadingScreen();
+    });
+    window.addEventListener('propzen-app-ready', function() {
+      clearTimeout(appLoadTimeout);
+      removeLoadingScreen();
+    });
+
+    // 2. Observe DOM mutations for Flutter canvas/glass-pane insertion
+    const observer = new MutationObserver(function(mutations, obs) {
+      if (checkFlutterAttached()) {
+        clearTimeout(appLoadTimeout);
+        obs.disconnect();
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    // 3. Periodic fallback poll (checks every 100ms for first 5 seconds)
+    const pollInterval = setInterval(function() {
+      if (checkFlutterAttached()) {
+        clearTimeout(appLoadTimeout);
+        clearInterval(pollInterval);
+      }
+    }, 100);
+
+    // PropZen AI Female Voice Agent Engine (Natural Indian Hindi / Hinglish / English)
+    window.propzenVoiceEngine = {
+      recognition: null,
+      isListening: false,
+      synthesis: window.speechSynthesis || null,
+      currentUtterance: null,
+      cachedVoices: [],
+      globalFemaleVoice: null,
+
+      // Initialize and pre-cache voices across all browsers
+      init: function() {
+        if (!window.speechSynthesis) return;
+        const load = () => {
+          this.cachedVoices = window.speechSynthesis.getVoices() || [];
+          this.globalFemaleVoice = this.resolveGlobalFemaleVoice();
+        };
+        load();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+          window.speechSynthesis.onvoiceschanged = load;
+        }
+      },
+
+      // Clean speech text by removing markdown symbols and normalizing currency
+      sanitizeSpeechText: function(rawText) {
+        if (!rawText) return '';
+        let text = rawText;
+        // Remove markdown bold, italic, code tags, headers
+        text = text.replace(/\*\*(.*?)\*\*/g, '$1');
+        text = text.replace(/\*(.*?)\*/g, '$1');
+        text = text.replace(/`([^`]+)`/g, '$1');
+        text = text.replace(/^#+\s+/gm, '');
+        text = text.replace(/[•✓✨🎉🎙️🔊🧠🔥⚡🌱⚠️❓🟢🔴]/g, '');
+        // Normalize ₹ currency notations to natural spoken phrases
+        text = text.replace(/₹\s*([0-9,.]+)\s*Cr/gi, '$1 Crore');
+        text = text.replace(/₹\s*([0-9,.]+)\s*L/gi, '$1 Lakh');
+        text = text.replace(/₹\s*([0-9,.]+)/g, '$1 rupees');
+        return text.trim();
+      },
+
+      // Check if a voice is male to strictly prevent selection
+      isMaleVoice: function(voice) {
+        if (!voice) return false;
+        const name = (voice.name || '').toLowerCase();
+        const maleKeywords = [
+          'david', 'mark', 'george', 'ravi', 'madhur', 'hemant', 'rishi',
+          'guy', 'stefan', 'prabhat', 'male', 'richard', 'james', 'en-in-x-cda-local'
+        ];
+        return maleKeywords.some(kw => name.includes(kw));
+      },
+
+      // Single Global Indian Female Voice Resolution Algorithm
+      resolveGlobalFemaleVoice: function() {
+        if (!window.speechSynthesis) return null;
+        const voices = this.cachedVoices.length > 0 ? this.cachedVoices : (window.speechSynthesis.getVoices() || []);
+        if (!voices || voices.length === 0) return null;
+
+        // Tier 1 Priority: Verified High-Quality Indian Female Voices
+        const indianFemaleKeywords = [
+          'swara',     // Microsoft Swara Online (Natural) - Hindi (India)
+          'neerja',    // Microsoft Neerja Online (Natural) - English (India)
+          'kalpana',   // Microsoft Kalpana - Hindi (India)
+          'heera',     // Microsoft Heera - English (India)
+          'ananya',    // Microsoft Ananya - Hindi (India)
+          'priya',     // Microsoft Priya - English (India)
+          'google हिन्दी', // Google Hindi Female
+          'google hindi',
+          'google en-in female',
+          'sangeeta',
+          'lekha',     // Apple Lekha - Hindi Female
+          'kavya',     // Apple Kavya - Hindi Female
+          'aditi',     // Apple Aditi - Indian English/Hindi Female
+          'veena'      // Apple Veena - Indian English Female
+        ];
+
+        for (const kw of indianFemaleKeywords) {
+          const match = voices.find(v => {
+            const name = v.name.toLowerCase();
+            return name.includes(kw) && !this.isMaleVoice(v);
+          });
+          if (match) return match;
+        }
+
+        // Tier 2 Priority: Any Indian Voice (hi-IN, en-IN) that is explicitly NOT male
+        const nonMaleIndian = voices.find(v => {
+          const lang = v.lang.toLowerCase();
+          const isIndianLang = lang.includes('hi') || lang.includes('in');
+          return isIndianLang && !this.isMaleVoice(v);
+        });
+        if (nonMaleIndian) return nonMaleIndian;
+
+        // Tier 3 Priority: Global Natural Female Voice
+        const globalFemaleKeywords = ['zira', 'aria', 'jenny', 'samantha', 'victoria', 'karen', 'female'];
+        for (const kw of globalFemaleKeywords) {
+          const match = voices.find(v => {
+            const name = v.name.toLowerCase();
+            return name.includes(kw) && !this.isMaleVoice(v);
+          });
+          if (match) return match;
+        }
+
+        // Tier 4: First non-male voice
+        const nonMale = voices.find(v => !this.isMaleVoice(v));
+        if (nonMale) return nonMale;
+
+        return voices[0];
+      },
+
+      getGlobalFemaleVoice: function() {
+        if (!this.globalFemaleVoice) {
+          this.globalFemaleVoice = this.resolveGlobalFemaleVoice();
+        }
+        return this.globalFemaleVoice;
+      },
+
+      startListening: function(lang, onResult, onError, onEnd) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          if (onError) onError('Speech recognition is not supported in this browser. You can still type in Hindi, Hinglish, or English.');
+          return false;
+        }
+        try {
+          if (this.recognition) {
+            try { this.recognition.abort(); } catch(_) {}
+          }
+          this.recognition = new SpeechRec();
+          this.recognition.lang = lang || 'hi-IN';
+          this.recognition.interimResults = true;
+          this.recognition.continuous = false;
+          this.recognition.maxAlternatives = 1;
+
+          this.recognition.onstart = () => {
+            this.isListening = true;
+          };
+
+          this.recognition.onresult = (event) => {
+            let interim = '';
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+              } else {
+                interim += event.results[i][0].transcript;
+              }
+            }
+            if (onResult) {
+              onResult(finalTranscript || interim, Boolean(finalTranscript));
+            }
+          };
+
+          this.recognition.onerror = (event) => {
+            this.isListening = false;
+            if (onError) onError(event.error || 'Speech error');
+          };
+
+          this.recognition.onend = () => {
+            this.isListening = false;
+            if (onEnd) onEnd();
+          };
+
+          this.recognition.start();
+          return true;
+        } catch (e) {
+          if (onError) onError(e.message || String(e));
+          return false;
+        }
+      },
+
+      stopListening: function() {
+        if (this.recognition) {
+          try { this.recognition.stop(); } catch(_) {}
+          this.isListening = false;
+        }
+      },
+
+      // Unified Single Female Voice Speech Synthesis
+      speak: function(text, lang, onEnd) {
+        if (!window.speechSynthesis) {
+          if (onEnd) onEnd();
+          return false;
+        }
+        try {
+          window.speechSynthesis.cancel();
+          const cleanText = this.sanitizeSpeechText(text);
+          if (!cleanText) {
+            if (onEnd) onEnd();
+            return false;
+          }
+
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          const femaleVoice = this.getGlobalFemaleVoice();
+          
+          if (femaleVoice) {
+            utterance.voice = femaleVoice;
+            utterance.lang = femaleVoice.lang || (lang || 'hi-IN');
+          } else {
+            utterance.lang = lang || 'hi-IN';
+          }
+          
+          // Tuned for natural, warm, vibrant Indian female conversational delivery
+          utterance.rate = 1.0;
+          utterance.pitch = 1.15;
+
+          utterance.onend = () => { if (onEnd) onEnd(); };
+          utterance.onerror = () => { if (onEnd) onEnd(); };
+
+          this.currentUtterance = utterance;
+          window.speechSynthesis.speak(utterance);
+          return true;
+        } catch(e) {
+          if (onEnd) onEnd();
+          return false;
+        }
+      },
+
+      stopSpeaking: function() {
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+        }
+      }
+    };
+
+    // Initialize voices as soon as engine is created
+    window.propzenVoiceEngine.init();
+
+    // =========================================================================
+    // PROPZEN RAZORPAY PAYMENT GATEWAY BRIDGE
+    // =========================================================================
+    window.propzenRazorpayBridge = {
+      openCheckout: function(options, successCallback, dismissCallback, failureCallback) {
+        try {
+          if (typeof Razorpay === 'undefined') {
+            console.warn('[Razorpay] Loading checkout.js dynamically...');
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => {
+              this._launch(options, successCallback, dismissCallback, failureCallback);
+            };
+            script.onerror = (e) => {
+              if (failureCallback) failureCallback('Failed to load Razorpay SDK');
+            };
+            document.head.appendChild(script);
+          } else {
+            this._launch(options, successCallback, dismissCallback, failureCallback);
+          }
+        } catch(err) {
+          console.error('[Razorpay Bridge Error]:', err);
+          if (failureCallback) failureCallback(err.toString());
+        }
+      },
+
+      _launch: function(options, successCallback, dismissCallback, failureCallback) {
+        const rzpOptions = {
+          key: options.key,
+          amount: options.amount,
+          currency: options.currency || 'INR',
+          name: options.name || 'PropZen',
+          description: options.description || 'NRI Remote Property Pass',
+          image: options.image || 'assets/propzen_logo.png',
+          order_id: options.order_id,
+          prefill: {
+            name: options.prefill_name || '',
+            email: options.prefill_email || '',
+            contact: options.prefill_contact || ''
+          },
+          theme: {
+            color: '#7C3AED'
+          },
+          modal: {
+            ondismiss: function() {
+              console.log('[Razorpay] Checkout modal dismissed by user');
+              if (dismissCallback) dismissCallback();
+            }
+          },
+          handler: function(response) {
+            console.log('[Razorpay] Payment Success Callback:', response);
+            if (successCallback) {
+              successCallback(JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+              }));
+            }
+          }
+        };
+
+        const rzp = new Razorpay(rzpOptions);
+        rzp.on('payment.failed', function(response) {
+          console.error('[Razorpay] Payment Failed:', response.error);
+          if (failureCallback) {
+            failureCallback(JSON.stringify(response.error || { description: 'Payment failed' }));
+          }
+        });
+
+        rzp.open();
+      }
+    };
+  </script>
+
+  <!-- Razorpay Checkout Library -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

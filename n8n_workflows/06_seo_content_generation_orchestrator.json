@@ -1,0 +1,138 @@
+{
+  "name": "06_PropZen_SEO_Content_Generation_Orchestrator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/seo-generate-content",
+        "options": {}
+      },
+      "name": "Webhook: Ingestion Complete Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/seo/generate-content",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source_name",
+              "value": "={{$json.body.source_name}}"
+            },
+            {
+              "name": "collection_date",
+              "value": "={{$json.body.collection_date || new Date().toISOString().split('T')[0]}}"
+            },
+            {
+              "name": "location",
+              "value": "={{$json.body.location}}"
+            },
+            {
+              "name": "property_type",
+              "value": "={{$json.body.property_type || 'Apartment'}}"
+            },
+            {
+              "name": "raw_data",
+              "value": "={{$json.body.raw_data || {}}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: LangGraph SEO Content Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "seo_content",
+        "fields": {
+          "fields": [
+            {
+              "name": "title",
+              "value": "={{$json.title}}"
+            },
+            {
+              "name": "slug",
+              "value": "={{$json.slug}}"
+            },
+            {
+              "name": "meta_title",
+              "value": "={{$json.meta_title}}"
+            },
+            {
+              "name": "meta_description",
+              "value": "={{$json.meta_description}}"
+            },
+            {
+              "name": "primary_keyword",
+              "value": "={{$json.primary_keyword}}"
+            },
+            {
+              "name": "content",
+              "value": "={{$json.content}}"
+            },
+            {
+              "name": "faq",
+              "value": "={{JSON.stringify($json.faq)}}"
+            },
+            {
+              "name": "internal_links",
+              "value": "={{JSON.stringify($json.internal_links)}}"
+            },
+            {
+              "name": "quality_score",
+              "value": "={{$json.quality_score}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json.decision === 'PUBLISH' ? 'PUBLISHED' : 'HUMAN_REVIEW'}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Save Article / Review Queue",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Ingestion Complete Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call: LangGraph SEO Content Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call: LangGraph SEO Content Engine": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Save Article / Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

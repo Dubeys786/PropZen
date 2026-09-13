@@ -1,0 +1,28 @@
+package com.propzen.crm.model;
+
+/**
+ * Granular activity event types across the CRM ecosystem.
+ */
+public enum CrmActivityType {
+    LEAD_CREATED,
+    STAGE_CHANGED,
+    STATUS_CHANGED,
+    ASSIGNED,
+    CALL_LOGGED,
+    NOTE_ADDED,
+    FOLLOWUP_SCHEDULED,
+    FOLLOWUP_COMPLETED,
+    SITE_VISIT_REQUESTED,
+    SITE_VISIT_SCHEDULED,
+    SITE_VISIT_COMPLETED,
+    SERVICE_REQUEST_CREATED,
+    SERVICE_STATUS_CHANGED,
+    PAYMENT_COMPLETED,
+    DOCUMENT_UPLOADED,
+    WHATSAPP_SENT,
+    WHATSAPP_RECEIVED,
+    EMAIL_SENT,
+    SMS_SENT,
+    CAMPAIGN_SENT,
+    MANUAL_ACTIVITY
+}

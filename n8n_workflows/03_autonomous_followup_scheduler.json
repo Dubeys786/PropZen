@@ -1,0 +1,167 @@
+{
+  "name": "03_PropZen_Autonomous_FollowUp_Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "name": "Cron: Check Pending FollowUps",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "table": "enquiries",
+        "returnAll": false,
+        "limit": 50,
+        "filter": "followup_status=in.(PENDING,SCHEDULED)&followup_attempts=lt.3"
+      },
+      "name": "Supabase: Fetch Pending Leads",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/ai/autonomous-followup",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "enquiry_id",
+              "value": "={{$json.id}}"
+            },
+            {
+              "name": "client_name",
+              "value": "={{$json.client_name || 'Buyer'}}"
+            },
+            {
+              "name": "client_phone",
+              "value": "={{$json.client_phone}}"
+            },
+            {
+              "name": "lead_priority",
+              "value": "={{$json.lead_priority || 'WARM'}}"
+            },
+            {
+              "name": "property_title",
+              "value": "={{$json.property_title}}"
+            },
+            {
+              "name": "followup_attempts",
+              "value": "={{$json.followup_attempts || 0}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: LangGraph FollowUp Decision Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.should_contact}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "IF: Should Contact?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "enquiries",
+        "id": "={{$json.enquiry_id}}",
+        "updateFields": {
+          "fields": [
+            {
+              "name": "followup_status",
+              "value": "IN_PROGRESS"
+            },
+            {
+              "name": "last_followup_at",
+              "value": "={{new Date().toISOString()}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Record Outreach & Bump Attempt",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1120, 200]
+    }
+  ],
+  "connections": {
+    "Cron: Check Pending FollowUps": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Fetch Pending Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Fetch Pending Leads": {
+      "main": [
+        [
+          {
+            "node": "Call: LangGraph FollowUp Decision Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call: LangGraph FollowUp Decision Engine": {
+      "main": [
+        [
+          {
+            "node": "IF: Should Contact?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Should Contact?": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Record Outreach & Bump Attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

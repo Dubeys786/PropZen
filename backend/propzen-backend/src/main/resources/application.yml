@@ -1,0 +1,85 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: propzen-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    baseline-on-migrate: true
+    baseline-version: 0
+    baseline-description: "Supabase Live Baseline"
+    locations: classpath:db/migration
+
+# PropZen Application Configuration
+propzen:
+  app:
+    version: "1.0.0"
+    name: "PropZen Enterprise Real Estate Backend"
+  cors:
+    allowed-origins: ${PROPZEN_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://localhost:5000,https://propzen.ai}
+  supabase:
+    url: ${SUPABASE_URL:https://eemxylswyvhsyzllcsnp.supabase.co}
+    anon-key: ${SUPABASE_ANON_KEY:sb_publishable_VfKv6fXe243_FfAHo8t1DA_uBwIP0YS}
+    jwt:
+      jwks-url: ${SUPABASE_JWKS_URL:https://eemxylswyvhsyzllcsnp.supabase.co/auth/v1/.well-known/jwks.json}
+      issuer: ${SUPABASE_JWT_ISSUER:https://eemxylswyvhsyzllcsnp.supabase.co/auth/v1}
+      audience: ${SUPABASE_JWT_AUDIENCE:authenticated}
+      secret: ${SUPABASE_JWT_SECRET:}
+  security:
+    bootstrap-admin-emails: ${PROPZEN_BOOTSTRAP_ADMIN_EMAILS:}
+  whatsapp:
+    api-url: ${PROPZEN_WHATSAPP_API_URL:https://graph.facebook.com/v19.0}
+    api-token: ${PROPZEN_WHATSAPP_API_TOKEN:}
+    phone-number-id: ${PROPZEN_WHATSAPP_PHONE_NUMBER_ID:}
+    business-account-id: ${PROPZEN_WHATSAPP_BUSINESS_ACCOUNT_ID:}
+    webhook-verify-token: ${PROPZEN_WHATSAPP_WEBHOOK_VERIFY_TOKEN:}
+    app-secret: ${PROPZEN_WHATSAPP_APP_SECRET:}
+  payment:
+    razorpay:
+      key-id: ${RAZORPAY_KEY_ID:}
+      key-secret: ${RAZORPAY_KEY_SECRET:}
+  outbox:
+    poll-interval-ms: ${PROPZEN_OUTBOX_POLL_INTERVAL_MS:5000}
+  ai:
+    provider: ${PROPZEN_AI_PROVIDER:LOCAL}
+    api-key: ${PROPZEN_AI_API_KEY:}
+    model: ${PROPZEN_AI_MODEL:gpt-4o-mini}
+    base-url: ${PROPZEN_AI_BASE_URL:https://api.openai.com/v1}
+    timeout-ms: ${PROPZEN_AI_TIMEOUT_MS:10000}
+    max-tokens: ${PROPZEN_AI_MAX_TOKENS:1000}
+    temperature: ${PROPZEN_AI_TEMPERATURE:0.7}
+    cache-enabled: ${PROPZEN_AI_CACHE_ENABLED:true}
+    rate-limit-per-minute: ${PROPZEN_AI_RATE_LIMIT_PER_MINUTE:60}
+    safety-checks-enabled: ${PROPZEN_AI_SAFETY_CHECKS_ENABLED:true}
+
+# SpringDoc OpenAPI / Swagger Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.propzen: INFO

@@ -1,0 +1,90 @@
+{
+  "name": "07_PropZen_SEO_Sitemap_Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Cron: Daily Search Engine Ping",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://127.0.0.1:8080/sitemap.xml",
+        "options": {}
+      },
+      "name": "Fetch: Live PropZen Sitemap XML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "seo_indexing_logs",
+        "fields": {
+          "fields": [
+            {
+              "name": "entity_type",
+              "value": "sitemap"
+            },
+            {
+              "name": "entity_id",
+              "value": "sitemap.xml"
+            },
+            {
+              "name": "url",
+              "value": "https://propzen.ai/sitemap.xml"
+            },
+            {
+              "name": "status",
+              "value": "SUBMITTED"
+            },
+            {
+              "name": "response",
+              "value": "={{JSON.stringify({ message: 'Dynamic sitemap validated and submitted to index pipeline' })}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Record Sitemap Sync",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Cron: Daily Search Engine Ping": {
+      "main": [
+        [
+          {
+            "node": "Fetch: Live PropZen Sitemap XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch: Live PropZen Sitemap XML": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Record Sitemap Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

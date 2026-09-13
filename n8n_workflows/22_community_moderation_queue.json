@@ -1,0 +1,55 @@
+{
+  "name": "22_PropZen_Community_Moderation_Queue",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/community-report",
+        "options": {}
+      },
+      "name": "Webhook: Forum Post or Chat Reported",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "reports",
+        "fields": {
+          "fields": [
+            {
+              "name": "targetId",
+              "value": "={{$json.body.targetId}}"
+            },
+            {
+              "name": "targetType",
+              "value": "={{$json.body.targetType}}"
+            },
+            {
+              "name": "reason",
+              "value": "={{$json.body.reason}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase / Firebase: Ingest Report Queue",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Forum Post or Chat Reported": {
+      "main": [
+        [
+          {
+            "node": "Supabase / Firebase: Ingest Report Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

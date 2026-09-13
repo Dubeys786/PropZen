@@ -1,0 +1,66 @@
+{
+  "name": "12_PropZen_Apify_Market_Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 7
+            }
+          ]
+        }
+      },
+      "name": "Cron: Weekly Market Data Collection",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/apify/scrape-market",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "location",
+              "value": "Sector 150"
+            },
+            {
+              "name": "city",
+              "value": "Noida"
+            }
+          ]
+        }
+      },
+      "name": "Call: Apify Permitted Scraper Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Cron: Weekly Market Data Collection": {
+      "main": [
+        [
+          {
+            "node": "Call: Apify Permitted Scraper Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

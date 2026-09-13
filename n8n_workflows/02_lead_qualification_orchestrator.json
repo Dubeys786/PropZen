@@ -1,0 +1,149 @@
+{
+  "name": "02_PropZen_Lead_Qualification_Orchestrator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/lead-qualify",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook: New Lead / Enquiry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/ai/qualify-lead",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "enquiry_id",
+              "value": "={{$json.body.enquiry_id}}"
+            },
+            {
+              "name": "property_id",
+              "value": "={{$json.body.property_id}}"
+            },
+            {
+              "name": "property_title",
+              "value": "={{$json.body.property_title}}"
+            },
+            {
+              "name": "client_name",
+              "value": "={{$json.body.client_name}}"
+            },
+            {
+              "name": "client_phone",
+              "value": "={{$json.body.client_phone}}"
+            },
+            {
+              "name": "message",
+              "value": "={{$json.body.message}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: LangGraph Intent Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "enquiries",
+        "id": "={{$json.enquiry_id}}",
+        "updateFields": {
+          "fields": [
+            {
+              "name": "lead_priority",
+              "value": "={{$json.lead_priority}}"
+            },
+            {
+              "name": "intent_score",
+              "value": "={{$json.intent_score}}"
+            },
+            {
+              "name": "buyer_timeline",
+              "value": "={{$json.buyer_timeline}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Save Lead Classification",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify($json)}}"
+      },
+      "name": "Respond to Caller",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        960,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: New Lead / Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Call: LangGraph Intent Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call: LangGraph Intent Engine": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Save Lead Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Save Lead Classification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Caller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

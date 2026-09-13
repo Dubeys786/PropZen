@@ -1,0 +1,61 @@
+{
+  "name": "11_PropZen_eCourt_Litigation_Check",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/ecourt-check",
+        "options": {}
+      },
+      "name": "Webhook: Property Legal Verification Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/ecourt/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cnr_number",
+              "value": "={{$json.body.cnr_number}}"
+            },
+            {
+              "name": "court_complex",
+              "value": "={{$json.body.court_complex || 'District Court Gautam Buddha Nagar'}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: eCourt Official Legal Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Property Legal Verification Request": {
+      "main": [
+        [
+          {
+            "node": "Call: eCourt Official Legal Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "name": "05_PropZen_SEO_Market_Data_Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 7
+            }
+          ]
+        }
+      },
+      "name": "Cron: Weekly Market Data Pull",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "seo_sources",
+        "fields": {
+          "fields": [
+            {
+              "name": "source_name",
+              "value": "UP_Gov_Circle_Rates_Weekly_Feed"
+            },
+            {
+              "name": "location",
+              "value": "Sector 150 Noida"
+            },
+            {
+              "name": "property_type",
+              "value": "Apartment"
+            },
+            {
+              "name": "raw_data",
+              "value": "={{JSON.stringify({ avg_price_sqft: 8900, prev_price_sqft: 8400, infrastructure_drivers: ['Metro Link', 'Sports City Hub'] })}}"
+            },
+            {
+              "name": "validation_status",
+              "value": "VALIDATED"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Ingest Raw Market Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Cron: Weekly Market Data Pull": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Ingest Raw Market Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

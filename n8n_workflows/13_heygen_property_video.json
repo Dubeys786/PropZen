@@ -1,0 +1,69 @@
+{
+  "name": "13_PropZen_HeyGen_Property_Video",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/heygen-generate-video",
+        "options": {}
+      },
+      "name": "Webhook: Verified Listing Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/heygen/create-explainer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "property_id",
+              "value": "={{$json.body.property_id}}"
+            },
+            {
+              "name": "property_title",
+              "value": "={{$json.body.title}}"
+            },
+            {
+              "name": "locality",
+              "value": "={{$json.body.sector}}"
+            },
+            {
+              "name": "script_text",
+              "value": "={{$json.body.script_text || ('Welcome to ' + $json.body.title + ' in ' + $json.body.sector + '. Featuring verified RERA compliance and luxury living.')}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: HeyGen AI Video Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Verified Listing Published": {
+      "main": [
+        [
+          {
+            "node": "Call: HeyGen AI Video Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

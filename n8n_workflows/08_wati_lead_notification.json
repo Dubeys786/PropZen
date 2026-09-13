@@ -1,0 +1,92 @@
+{
+  "name": "08_PropZen_Wati_Lead_Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/wati-lead-notify",
+        "options": {}
+      },
+      "name": "Webhook: New Lead Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.body.has_whatsapp_opt_in != false}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "IF: User Opted-in for WhatsApp?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/wati/send-template",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "whatsapp_number",
+              "value": "={{$json.body.phone}}"
+            },
+            {
+              "name": "template_name",
+              "value": "propzen_verified_lead_greeting"
+            },
+            {
+              "name": "parameters",
+              "value": "={{[{\"name\": \"buyer_name\", \"value\": $json.body.name || 'Valued Buyer'}, {\"name\": \"property_title\", \"value\": $json.body.property_title || 'Shortlisted Property'}]}}"
+            }
+          ]
+        }
+      },
+      "name": "Wati: Send Verified Template Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [700, 200]
+    }
+  ],
+  "connections": {
+    "Webhook: New Lead Received": {
+      "main": [
+        [
+          {
+            "node": "IF: User Opted-in for WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: User Opted-in for WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "Wati: Send Verified Template Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

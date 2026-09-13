@@ -1,0 +1,20 @@
+package com.propzen.ai.model;
+
+/**
+ * High-level AI operations supported by the PropZen platform.
+ */
+public enum AiOperationType {
+    LEAD_SCORING,
+    PROPERTY_RECOMMENDATION,
+    CRM_LEAD_SUMMARY,
+    CRM_NEXT_ACTION,
+    CRM_FOLLOW_UP_DRAFT,
+    CRM_CONVERSATION_SUMMARY,
+    PROPERTY_DESCRIPTION_GENERATION,
+    ENQUIRY_CLASSIFICATION,
+    DOCUMENT_INTELLIGENCE,
+    MARKET_INTELLIGENCE,
+    ADMIN_INSIGHTS,
+    DEALER_INSIGHTS,
+    PARTNER_INSIGHTS
+}

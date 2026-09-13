@@ -1,0 +1,65 @@
+{
+  "name": "15_PropZen_Matterport_Planner5D_Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/3d-tour-sync",
+        "options": {}
+      },
+      "name": "Webhook: 3D Tour Asset Uploaded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/visualization/register-3d-tour",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "property_id",
+              "value": "={{$json.body.property_id}}"
+            },
+            {
+              "name": "matterport_model_id",
+              "value": "={{$json.body.matterport_model_id}}"
+            },
+            {
+              "name": "floorplan_project_id",
+              "value": "={{$json.body.floorplan_project_id}}"
+            }
+          ]
+        }
+      },
+      "name": "Call: 3D Tour Registry Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: 3D Tour Asset Uploaded": {
+      "main": [
+        [
+          {
+            "node": "Call: 3D Tour Registry Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

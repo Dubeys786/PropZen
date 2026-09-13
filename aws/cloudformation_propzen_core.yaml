@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'PropZen Production Enterprise Infrastructure Stack (ECS Fargate, S3 Media Bucket with KMS SSE, CloudWatch)'
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: production
+    Description: Environment stage (production, staging, dev)
+
+Resources:
+  # 1. KMS Customer Master Key (CMK) for AES-256-GCM Envelope Cryptography
+  PropZenMasterKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: Master KEK for PropZen Envelope Cryptography & S3 SSE
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: propzen-kms-policy
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+
+  PropZenKmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/propzen-master-kek
+      TargetKeyId: !Ref PropZenMasterKmsKey
+
+  # 2. S3 Verified Media Bucket (Encrypted with KMS)
+  PropZenMediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'propzen-verified-media-${EnvironmentName}-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'aws:kms'
+              KMSMasterKeyId: !Ref PropZenMasterKmsKey
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  # 3. CloudWatch Log Group for Centralized Audit & Telemetry
+  PropZenMicroserviceLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/propzen/${EnvironmentName}/microservices'
+      RetentionInDays: 90
+
+Outputs:
+  KmsKeyArn:
+    Description: ARN of the Master KMS Key
+    Value: !GetAtt PropZenMasterKmsKey.Arn
+    Export:
+      Name: !Sub '${EnvironmentName}-PropZenMasterKmsKeyArn'
+
+  MediaBucketName:
+    Description: Name of S3 Media Bucket
+    Value: !Ref PropZenMediaBucket
+    Export:
+      Name: !Sub '${EnvironmentName}-PropZenMediaBucketName'

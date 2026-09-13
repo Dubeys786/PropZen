@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-surface: #111827;
+  --bg-surface-low: #0b0f19;
+  --bg-surface-high: #1f2937;
+  --bg-surface-highest: #374151;
+  --color-primary: #6366f1;
+  --color-primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --color-secondary: #8b5cf6;
+  --color-tertiary: #ec4899;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-text-main: #f9fafb;
+  --color-text-sub: #9ca3af;
+  --color-outline: rgba(139, 92, 246, 0.2);
+}
+
+.light {
+  --bg-surface: #ffffff;
+  --bg-surface-low: #f8fafc;
+  --bg-surface-high: #f1f5f9;
+  --bg-surface-highest: #e2e8f0;
+  --color-text-main: #0f172a;
+  --color-text-sub: #64748b;
+  --color-outline: rgba(99, 102, 241, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  min-height: 100%;
+  height: auto;
+  background-color: var(--bg-surface-low);
+  color: var(--color-text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+main {
+  min-height: auto;
+  height: auto;
+  flex-grow: 1;
+  width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-mono-data {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.glass-panel {
+  background-color: rgba(31, 41, 55, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-outline);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.light .glass-panel {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(99, 102, 241, 0.15);
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.glass-modal {
+  background-color: rgba(17, 24, 39, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 24px;
+}
+
+.hard-shadow {
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.hard-shadow-emerald {
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+}
+
+.glow-focus:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
+}
+
+.glow-hover:hover {
+  border-color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.25);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-surface-low);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-highest);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Pulsing Badge Animations */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.04); }
+}
+
+.pulse-live {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+/* View transitions */
+.view-pane {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.view-pane.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tab active indicator */
+.tab-btn {
+  position: relative;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  color: #ffffff;
+  background: var(--color-primary-gradient);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+/* Modal lightbox backdrop */
+.lightbox-modal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.lightbox-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================================================================
+   AI PROPERTY VERIFICATION ENGINE STYLES
+   ========================================================================= */
+.verif-badge-consistent {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.verif-badge-review {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.verif-badge-mismatch {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.verif-badge-unavailable {
+  background-color: rgba(100, 116, 139, 0.12);
+  color: #334155;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
+
+.verif-timeline-dot {
+  position: absolute;
+  left: -25px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+.verif-doc-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verif-doc-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+

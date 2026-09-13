@@ -1,0 +1,59 @@
+{
+  "name": "04_PropZen_Admin_Human_Review_Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "propzen/admin-review-alert",
+        "options": {}
+      },
+      "name": "Webhook: High Risk / Discrepancy Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "notifications",
+        "fields": {
+          "fields": [
+            {
+              "name": "title",
+              "value": "=⚠️ AI Risk Alert: {{$json.body.title || 'Property Review Required'}}"
+            },
+            {
+              "name": "message",
+              "value": "=AI verification flagged risk score {{$json.body.risk_score}}. Reasons: {{$json.body.reasons ? $json.body.reasons.join(', ') : 'Document discrepancy'}}"
+            },
+            {
+              "name": "type",
+              "value": "property_approval"
+            },
+            {
+              "name": "property_id",
+              "value": "={{$json.body.property_id}}"
+            }
+          ]
+        }
+      },
+      "name": "Supabase: Create Admin Notification",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: High Risk / Discrepancy Alert": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Create Admin Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
