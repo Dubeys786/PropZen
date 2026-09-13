@@ -1,4 +1,4 @@
-# stitch_property_intelligence_report_dashboard
+# PropZen
 
 A new Flutter project.
 
